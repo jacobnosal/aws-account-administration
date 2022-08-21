@@ -5,7 +5,8 @@ on: [pull_request]
 jobs:
   build:
     runs-on: ubuntu-20.04
-    environment: dev
+    env:
+      TF_VAR_notification_emails: ${{ secrets.TF_VAR_NOTIFICATION_EMAILS }}
 
     steps:
       - name: Checkout Code
@@ -34,8 +35,6 @@ jobs:
       - name: Plan Terraform
         id: plan
         continue-on-error: true
-        with:
-          TF_VAR_notification_emails: ${{ secrets.TF_VAR_notification_emails }}
         run: |
           terraform plan -var-file dev.tfvars -input=false -no-color -out=tfplan \
           && terraform show -no-color tfplan   
