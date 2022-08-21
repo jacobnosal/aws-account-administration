@@ -4,6 +4,12 @@ variable "budget_limit_amount" {
   default     = 1
 }
 
+variable "budget_limit_amount_s3_in_gb" {
+  description = "(Required) The amount of cost or usage being measured for a budget."
+  type        = number
+  default     = 1
+}
+
 variable "budget_time_start" {
   description = "(Optional) The start of the time period covered by the budget. If you don't specify a start date, AWS defaults to the start of your chosen time period. The start date must come before the end date. Format: 2017-01-01_12:00."
   type        = string
