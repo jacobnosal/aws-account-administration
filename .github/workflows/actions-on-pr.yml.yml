@@ -5,6 +5,9 @@ on: [pull_request]
 jobs:
   build:
     runs-on: ubuntu-20.04
+    env:
+      TF_VAR_notification_emails: ${{ secrets.TF_VAR_NOTIFICATION_EMAILS }}
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -24,3 +27,54 @@ jobs:
       - name: Initialize Terraform
         run: |
           terraform init
+
+      - name: Validate Terraform Module
+        run: |
+          terraform validate
+
+      - name: Plan Terraform
+        id: plan
+        continue-on-error: true
+        run: |
+          terraform plan -var-file dev.tfvars -input=false -no-color -out=tfplan \
+          && terraform show -no-color tfplan   
+
+      - name: Reformat Plan
+        if: steps.plan.outcome == 'success'
+        run: |
+          echo '${{ steps.plan.outputs.stdout || steps.plan.outputs.stderr }}' \
+          | sed -E 's/^([[:space:]]+)([-+])/\2\1/g' > plan.txt          
+
+      - name: Put Plan in Env Var
+        if: steps.plan.outcome == 'success'
+        run: |
+          PLAN=$(cat plan.txt)
+          echo "PLAN<<EOF" >> $GITHUB_ENV
+          echo "$PLAN" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV  
+
+      - name: Post Plan and Apply to GitHub PR
+        if: steps.plan.outcome == 'success'
+        uses: mshick/add-pr-comment@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token-user-login: 'github-actions[bot]'
+          message: |
+            **Plan Results**:
+
+            ```diff
+            ${{ env.PLAN }}
+            ``` 
+
+      - name: Post Plan Failure
+        if: steps.plan.outcome == 'failure'
+        uses: mshick/add-pr-comment@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token-user-login: 'github-actions[bot]'
+          message: |
+            **Plan failed**:
+
+            ```
+            ${{ steps.plan.outputs.stderr }}
+            ``` 
