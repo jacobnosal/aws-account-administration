@@ -36,7 +36,7 @@ resource "aws_budgets_budget" "account_budget" {
 }
 
 resource "aws_budgets_budget" "s3_budget" {
-  name              = "monthly_account_budget"
+  name              = "monthly_s3_budget"
   limit_amount      = var.budget_limit_amount_s3_in_gb
   budget_type       = "USAGE"
   limit_unit        = "GB"
