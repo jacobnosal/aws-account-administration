@@ -13,7 +13,7 @@ resource "aws_budgets_budget" "account_budget" {
     threshold                  = 80
     threshold_type             = "PERCENTAGE"
     notification_type          = "ACTUAL"
-    subscriber_email_addresses = var.notification_emails
+    subscriber_email_addresses = [var.notification_emails]
   }
 
   # Send a notification when actual spending reaches threshhold.
@@ -22,7 +22,7 @@ resource "aws_budgets_budget" "account_budget" {
     threshold                  = 100
     threshold_type             = "PERCENTAGE"
     notification_type          = "ACTUAL"
-    subscriber_email_addresses = var.notification_emails
+    subscriber_email_addresses = [var.notification_emails]
   }
 
   # Send a notification when forecasted spending exceeds monthly limit.
@@ -31,6 +31,6 @@ resource "aws_budgets_budget" "account_budget" {
     threshold                  = 100
     threshold_type             = "PERCENTAGE"
     notification_type          = "FORECASTED"
-    subscriber_email_addresses = var.notification_emails
+    subscriber_email_addresses = [var.notification_emails]
   }
 }

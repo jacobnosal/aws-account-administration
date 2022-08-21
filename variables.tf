@@ -24,5 +24,5 @@ variable "budget_time_unit" {
 
 variable "notification_emails" {
   description = "(Required) E-Mail addresses to notify."
-  type        = list(string)
+  type        = string
 }

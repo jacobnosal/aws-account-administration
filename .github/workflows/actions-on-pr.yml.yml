@@ -52,3 +52,16 @@ jobs:
           echo "PLAN<<EOF" >> $GITHUB_ENV
           echo "$PLAN" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV  
+
+      - name: Post Plan Failure
+        if: steps.plan.outcome == 'failure'
+        uses: mshick/add-pr-comment@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token-user-login: 'github-actions[bot]'
+          message: |
+            Plan failed for **${{ matrix.path }}**:
+
+            ```
+            ${{ steps.plan.outputs.stderr }}
+            ``` 
