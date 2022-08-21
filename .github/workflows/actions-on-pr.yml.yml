@@ -5,6 +5,8 @@ on: [pull_request]
 jobs:
   build:
     runs-on: ubuntu-20.04
+    environment: dev
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -28,3 +30,26 @@ jobs:
       - name: Validate Terraform Module
         run: |
           terraform validate
+
+      - name: Plan Terraform
+        id: plan
+        continue-on-error: true
+        with:
+          TF_VAR_notification_emails: ${{ secrets.TF_VAR_notification_emails }}
+        run: |
+          terraform plan -var-file dev.tfvars -input=false -no-color -out=tfplan \
+          && terraform show -no-color tfplan   
+
+      - name: Reformat Plan
+        if: steps.plan.outcome == 'success'
+        run: |
+          echo '${{ steps.plan.outputs.stdout || steps.plan.outputs.stderr }}' \
+          | sed -E 's/^([[:space:]]+)([-+])/\2\1/g' > plan.txt          
+
+      - name: Put Plan in Env Var
+        if: steps.plan.outcome == 'success'
+        run: |
+          PLAN=$(cat plan.txt)
+          echo "PLAN<<EOF" >> $GITHUB_ENV
+          echo "$PLAN" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV  
