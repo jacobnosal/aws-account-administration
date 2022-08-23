@@ -1,6 +1,6 @@
 resource "aws_iam_group_policy" "tf_state_contributor" {
   name  = "tf_state_contributor"
-  group = aws_iam_group.aws_iac_contributor
+  group = aws_iam_group.aws_iac_contributor.name
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -25,7 +25,7 @@ resource "aws_iam_group_policy" "tf_state_contributor" {
 
 resource "aws_iam_group_policy" "budgets_contributor" {
   name  = "budgets_contributor"
-  group = aws_iam_group.aws_iac_contributor
+  group = aws_iam_group.aws_iac_contributor.name
 
   policy = jsonencode({
     Version = "2012-10-17",
